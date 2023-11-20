@@ -9,6 +9,7 @@ def login(): #Function for logging in. This will always run first.
     username_stripped = username.strip() #Stripping the name so spaces don't matter.
     if username_stripped.lower() in accounts and password == accounts[username_stripped.lower()]: #Matching the name with all lowercase letters, cause username should not be case-sensitive. Password should be though!
         print("Login successful!")
+        username = username.strip()
         display_options(username) #Transfers to the second function, in order to maintain username, so each user gets different options.
     else:
         print("Login failed. Please input correct credentials.")
