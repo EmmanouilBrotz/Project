@@ -3,6 +3,7 @@ accounts = { #Account credentials for each user.
     "delivery": "delivery123",
     "manager": "manager123"
 }
+orders=[]
 def login(): #Function for logging in. This will always run first.
     username = input("WELCOME TO THE ORDER SYSTEM\n USERNAME: ") 
     password = input("PASSWORD: ")
@@ -15,15 +16,43 @@ def login(): #Function for logging in. This will always run first.
         print("Login failed. Please input correct credentials.")
 def display_options(username):
     user_options = { #Options for each user, will display different stuff depending on the option.
-        "clerk": ["Option 1", "Option 2", "Option 3", "Exit"],
-        "delivery": ["Option A", "Option B", "Option C", "Exit"],
-        "manager": ["Option X", "Option Y", "Option Z", "Exit"]
+        "clerk": ["New Order", "Import From File", "View Undelivered Orders", "Exit"],
+        "delivery": ["Mark Order as Delivered", "Exit"],
+        "manager": ["Orders from Customer", "Orders of Day", "Total number of orders delivered", "Total Price of Orders of Customer", "Total Price of Orders of Day", "Exit"]
     }
+    print(f"Welcome, {username.capitalize()}! Your options are:") #Displays the options for different users.
     while True:
-        print(f"Welcome, {username.capitalize()}! Your options are:")
-        for index, option in enumerate(user_options[username.lower()], start=1):
-            print(f"{index}. {option}")
-        break
+        options = user_options[username.lower()]
+        for index, option in enumerate(options, start=1):
+            print(f"{index if index < len(options) else 0}. {option}")
+        try:
+            choice = int(input("Please input choice: "))
+        except ValueError as e:
+            print("You have most likely not input an integer. Please try again.")
+        else:
+            if username == "clerk":
+                match choice:
+                   case 1:
+                    new_order()
+                   case 2:
+                    import_from_file()
+                   case 3:
+                    view_undelivered_orders()
+                   case 0:
+                    break
+                   case _:
+                    print("Incorrect value.")
+def new_order():
+    print("Test1")
+def import_from_file():
+    print("Test2")
+def view_undelivered_orders():
+    print("Test3")
+
+
+                     
+        
+
     
 
 login()
