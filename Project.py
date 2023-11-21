@@ -1,3 +1,5 @@
+import csv #Will be used for importing/exporting .csv files.
+
 accounts = { #Account credentials for each user.
     "clerk" : "clerk123",
     "delivery": "delivery123",
@@ -18,7 +20,7 @@ def display_options(username):
     user_options = { #Options for each user, will display different stuff depending on the option.
         "clerk": ["New Order", "Import From File", "View Undelivered Orders", "Exit"],
         "delivery": ["Mark Order as Delivered", "Exit"],
-        "manager": ["Orders from Customer", "Orders of Day", "Total number of orders delivered", "Total Price of Orders of Customer", "Total Price of Orders of Day", "Exit"]
+        "manager": ["Orders Overview", "Logistics Overview","Export to file..", "Exit"]
     }
     print(f"Welcome, {username.capitalize()}! Your options are:") #Displays the options for different users.
     while True:
@@ -43,7 +45,17 @@ def display_options(username):
                    case _:
                     print("Incorrect value.")
             elif username == "manager":
-               pass
+               match choice:
+                  case 1:
+                     orders_overview()
+                  case 2:
+                     logistics_overview()
+                  case 3:
+                     export_file()
+                  case 0:
+                     break
+                  case _:
+                     print("Incorrect value.")
             else: #Last username should be Delivery anyway. It should be impossible to get here with a different username.
                match choice:
                   case 1:
@@ -69,33 +81,59 @@ def view_undelivered_orders(): #Checks the orders list for orders that have not 
        if order.get("Delivered") == False:
         print(order)
 def mark_order_as_delivered():
-    while True:
-        for order in orders: #Printing all non-delivered orders so the deliver can check the ID of the order they delivered, to mark it as delivered.
-            if order.get("Delivered") == False:
-                print(order)
-        try:
-            delivered = int(input("Please input ID of Delivered Order: ")) #Asking for input of delivered order ID.
-        except ValueError as e:
-            print("You have most likely not input an integer. Please try again.")
+    for order in orders: #Printing all non-delivered orders so the deliver can check the ID of the order they delivered, to mark it as delivered.
+        if order.get("Delivered") == False:
+            print(order)
+    try:
+        delivered = int(input("Please input ID of Delivered Order: ")) #Asking for input of delivered order ID.
+    except ValueError as e:
+        print("You have most likely not input an integer. Please try again.")
+    else:
+        for order in orders:
+            if order.get("ID") == delivered:
+                order["Delivered"] = True
+                break
         else:
-            for order in orders:
-                if order.get("ID") == delivered:
-                    order["Delivered"] = True
+           print(f"Order with ID {delivered} either doesn't exist or has already been delivered.")
+        while True:
             answer = input("Would you like to mark another delivery as Delivered? Y/N: ")
-            if answer == "Y":
-                 mark_order_as_delivered()
-            elif answer == "N":  
-               break 
+            if answer.upper() == "Y":
+                mark_order_as_delivered()
+            elif answer.upper() == "N":  
+                break 
             else:
                 print("Incorrect Value.")
-                break
+                continue
+def orders_overview():
+   pass
+def logistics_overview():
+   pass
+def export_file():
+    base_filename = input("Enter the filename for the CSV export: ")
+    filename = f"{base_filename}.csv"
+    fieldnames = ["ID", "Name", "Address", "Description", "Date", "Price", "Delivered"]
+
+    try:
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            
+            # Write the header
+            writer.writeheader()
+
+            # Write the data
+            for order in orders:
+                writer.writerow({key: order[key] for key in fieldnames})
+
+        print(f"Orders exported to {filename} successfully.")
+    except Exception as e:
+        print(f"Error exporting file: {e}")
            
 while True: 
     login()
     answer = input(("Would you like to use the program again? Y/N: "))
-    if answer == "Y":
+    if answer.upper() == "Y":
        continue
-    elif answer == "N":
+    elif answer.upper() == "N":
        break
     else:
        print("Incorrect Value entered. Will exit program.")
