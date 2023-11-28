@@ -73,6 +73,16 @@ def new_order():
     price = input("Price of order: ")
     order.update({"Name" : name, "Address" : address, "Description" : description, "Date" : date, "Price" : price, "ID" : len(orders) + 1, "Delivered" : "False"}) #Appending the order on the placeholder dictionary.
     orders.append(order) #Appending the order on the list of orders.
+    while True: #Asking if they wish to reuse the feature.
+        choice = input("Would you like to create a new order? Y/N: ")
+        choice.strip()
+        if choice.upper() == "Y":
+            new_order()
+        elif choice.upper() == "N":
+            break
+        else:
+            print("Incorrect value. Please try again.")
+            continue
 
 def import_from_file(): #Import a csv or txt file into the orders list
     file_type = input("What file type would you like to input? csv/txt: ")
@@ -100,9 +110,9 @@ def import_from_file(): #Import a csv or txt file into the orders list
     while True:
         answer = input("Would you like to import another file? Y/N: ")
         answer.strip()
-        if answer.lower() == "Y":
+        if answer.upper() == "Y":
             import_from_file()
-        elif answer.lower() == "N":
+        elif answer.upper() == "N":
             break
         else:
             print("Incorrect Value.")
@@ -147,14 +157,16 @@ def orders_overview(): #Reads the Orders list, and acts accordingly to what the 
         match choice:
             case 1:
                 name = input("Please input the name of the customer: ")
+                name.strip()
                 count = 0
                 for order in orders:
-                    if order.get("Name") == name:
+                    if order.get("Name").lower() == name.lower():
                         print(order)
                         count += 1
-                print(f"Total number of orders by {name}: {count}")
+                print(f"Total number of orders by {name.capitalize()}: {count}")
             case 2:
                 date = input("Please input date to see orders that day (DD/MM/YY format): ")
+                date.strip()
                 count = 0
                 for order in orders:
                     if order.get("Date") == date:
@@ -175,9 +187,9 @@ def orders_overview(): #Reads the Orders list, and acts accordingly to what the 
     while True:
         answer = input("Would you like to re-enter the Orders overview? Y/N: ")
         answer.strip()
-        if answer == "Y":
+        if answer.upper() == "Y":
             orders_overview()
-        elif answer == "N":
+        elif answer.upper() == "N":
             break
         else:
             print("Incorrect choice. Try again.")
@@ -193,11 +205,12 @@ def logistics_overview(): #Reads from the orders list and gives financial data d
         match choice:
             case 1:
                 name = input("Please input name of customer: ")
+                name.strip()
                 count = 0
                 for order in orders:
-                    if order.get("Name") == name:
+                    if order.get("Name").lower() == name.lower():
                         count =+ int(order.get("Price"))
-                print(f"Total price of all orders from {name}: {count}")                
+                print(f"Total price of all orders from {name.capitalize()}: {count}")                
             case 2:
                 date = input("Please input date (format: DD/MM/YY): ")
                 count = 0
@@ -213,9 +226,9 @@ def logistics_overview(): #Reads from the orders list and gives financial data d
     while True:
         answer = input("Would you like to re-enter the Logistics overview? Y/N: ")
         answer.strip()
-        if answer == "Y":
+        if answer.upper() == "Y":
             logistics_overview()
-        elif answer == "N":
+        elif answer.upper() == "N":
             break
         else:
             print("Incorrect choice. Try again.")
