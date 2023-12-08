@@ -1,18 +1,25 @@
 import csv #Will be used for importing/exporting .csv files. Also can be used for importing txt files through DictReader
-
+import os #Will be used for checking if a file exists or not
 accounts = { #Account credentials for each user.
-    "clerk" : "clerk123",
+    "clerk 1" : "clerk123",
+    "clerk 2" : "clerk123",
+    "clerk 3" : "clerk123",
     "delivery": "delivery123",
     "manager": "manager123"
 }
 orders=[]
+
 def login(): #Function for logging in. This will always run first.
-    username = input("WELCOME TO THE ORDER SYSTEM\n USERNAME: ") 
+    global saved_username
+    username = input("WELCOME TO THE ORDER SYSTEM\n USERNAME: ")
+    saved_username = username
     password = input("PASSWORD: ")
     username_stripped = username.strip() #Stripping the name so spaces don't matter.
     if username_stripped.lower() in accounts and password == accounts[username_stripped.lower()]: #Matching the name with all lowercase letters, cause username should not be case-sensitive. Password should be though!
         print("Login successful!")
         username = username.strip()
+        if "clerk" in username:
+            username = username.split()[0]
         display_options(username) #Transfers to the second function, in order to maintain username, so each user gets different options.
     else:
         print("Login failed. Please input correct credentials.")
@@ -32,7 +39,7 @@ def display_options(username):
         except ValueError as e:
             print("You have most likely not input an integer. Please try again.")
         else:
-            if username == "clerk": #Match user input with choice.
+            if "clerk" in username: #Match user input with choice.
                 match choice:
                    case 1:
                     new_order()
@@ -71,7 +78,7 @@ def new_order():
     description = input("Description of order of customer: ")
     date = input("Date of order (INPUT IN DD/MM/YY): ")
     price = input("Price of order: ")
-    order.update({"Name" : name, "Address" : address, "Description" : description, "Date" : date, "Price" : price, "ID" : len(orders) + 1, "Delivered" : "False"}) #Appending the order on the placeholder dictionary.
+    order.update({"Name" : name, "Address" : address, "Description" : description, "Date" : date, "Price" : price, "ID" : len(orders) + 1, "Delivered" : "False", "Clerk" : saved_username}) #Appending the order on the placeholder dictionary.
     orders.append(order) #Appending the order on the list of orders.
     while True: #Asking if they wish to reuse the feature.
         choice = input("Would you like to create a new order? Y/N: ")
@@ -235,20 +242,69 @@ def logistics_overview(): #Reads from the orders list and gives financial data d
             continue
     
 def export_file():
+    answer = int(input("Choose what you would like to export: \n 1. Names of Customers \n 2. Number of orders created by Clerks \n 3. Orders \n 4. Orders in a day \n 0. Exit \n Input choice: "))
+    match answer:
+        case 1:
+            exporting("Names")
+        case 2:
+            exporting("Clerks")
+        case 3:
+            exporting("Orders")
+        case 4:
+            exporting("Date")
+        case 0:
+            display_options()
+        case _:
+            print("Incorrect value, try again.")
+            export_file()
+def exporting(c):
     base_filename = input("Enter the filename for the CSV export: ")
     filename = f"{base_filename}.csv"
-    fieldnames = ["ID", "Name", "Address", "Description", "Date", "Price", "Delivered"]
-
-    try:
+    if c == "Orders":
+        fieldnames = ["ID", "Name", "Address", "Description", "Date", "Price", "Delivered", "Clerk"]
+    elif c == "Names":
+        fieldnames = ["Name"]
+    elif c == "Clerks": #REMEMBER TO FIX
+        clerks = list()
+        clerkscore = {}
+        for account in accounts:
+            if "clerk" in account:
+                clerkscore.update({"Clerk" : account, "Count" : 0})
+                print(clerkscore)
+                for order in orders:
+                    if order.get("Clerk") == clerkscore.get("Clerk"):
+                        clerkscore.update({"Count" : clerkscore.get("Count") + 1})
+                clerks.append(clerkscore)
+                clerkscore = {}
+        fieldnames = ["Clerk", "Count"]
         with open(filename, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames) #Initializing a writer object so it can export the details to a .csv file
+            writer= csv.DictWriter(csvfile, fieldnames= fieldnames)
             writer.writeheader()
-            for order in orders: #Writes data
-                writer.writerow({key: order[key] for key in fieldnames})
-
+            for clerk in clerks:
+                writer.writerow({key: clerk[key] for key in fieldnames})
+    elif c == "Date":
+        fieldnames = ["ID", "Name", "Address", "Description", "Date", "Price", "Delivered", "Clerk"]
+        date = input("Input date in DD/MM/YY: ")
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames= fieldnames) #Initializing a writer object so it can export the details to a .csv file
+            writer.writeheader()
+            for order in orders:
+                if order.get("Date") == date:
+                    writer.writerow({key: order[key] for key in fieldnames}) 
+    else:
+        print("Internal System Error.")
+    try:
+        if not os.path.isfile(filename):
+            with open(filename, 'w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames) #Initializing a writer object so it can export the details to a .csv file
+                writer.writeheader()
+                for order in orders: #Writes data
+                    writer.writerow({key: order[key] for key in fieldnames})
+        else:
+            pass
         print(f"Orders exported to {filename} successfully.")
-    except Exception as e:
-        print(f"Error exporting file: {e}")
+    except Exception:
+        print(f"Error exporting file: {Exception}")
         
 login()   
 while True: 
