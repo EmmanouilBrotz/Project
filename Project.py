@@ -264,7 +264,7 @@ def exporting(c):
         fieldnames = ["ID", "Name", "Address", "Description", "Date", "Price", "Delivered", "Clerk"]
     elif c == "Names":
         fieldnames = ["Name"]
-    elif c == "Clerks": #REMEMBER TO FIX
+    elif c == "Clerks":
         clerks = list()
         clerkscore = {}
         for account in accounts:
